@@ -68,6 +68,10 @@ What are the archived variables for?
 			var/datum/gas/new_datum_gas = new newgas()
 			gas_datum_list += list(new_datum_gas.gas_id = new_datum_gas) //associates the gas with its id
 			gas_specific_heat += list(new_datum_gas.gas_id = new_datum_gas.specific_heat)
+			if(new_datum_gas.isFuel())
+				gas_fuels += list(new_datum_gas.gas_id = new_datum_gas.fuel_multiplier)
+			if(new_datum_gas.isOxidiser())
+				gas_oxidisers += list(new_datum_gas.gas_id = new_datum_gas.fuel_multiplier)
 
 	for(var/gasid in gas_datum_list) //initialise the gases themselves
 		gases += list("[gasid]" = 0)
@@ -183,7 +187,7 @@ What are the archived variables for?
 	//Outputs: None
 
 	for(var/gasid in gases)
-		adjust_gas(gasid, - (gases[gasid] - round(gases[gasid], rounding_error)))
+		set_gas(gasid, Floor(gases[gasid], rounding_error))
 
 
 ////////////////////////////////////////////

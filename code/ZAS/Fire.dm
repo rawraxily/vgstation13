@@ -251,18 +251,14 @@ turf/simulated/apply_fire_protection()
 
 /datum/gas_mixture/proc/get_gas_fuel()
 	var/total_fuel = 0
-	for(var/gasid in gases)
-		var/datum/gas/gas = get_gas_by_id(gasid)
-		if(gas.isFuel())
-			total_fuel += gases[gasid]
+	for(var/gasid in (gases & gas_fuels))
+		total_fuel += gases[gasid]
 	return total_fuel
 
 /datum/gas_mixture/proc/get_gas_oxidiser()
 	var/total_oxidiser = 0
-	for(var/gasid in gases)
-		var/datum/gas/gas = get_gas_by_id(gasid)
-		if(gas.isOxidiser())
-			total_oxidiser += gases[gasid]
+	for(var/gasid in (gases & gas_oxidisers))
+		total_oxidiser += gases[gasid]
 	return total_oxidiser
 
 datum/gas_mixture/proc/zburn(var/turf/T, force_burn)
@@ -304,16 +300,12 @@ datum/gas_mixture/proc/zburn(var/turf/T, force_burn)
 		var/used_reactants_ratio = Clamp(total_reactants * firelevel / zas_settings.Get(/datum/ZAS_Setting/fire_firelevel_multiplier), 0.2, total_reactants) / total_reactants
 
 		//remove and add gasses as calculated
-		for(var/gasid in gases)
-			var/datum/gas/current_gas = get_gas_by_id(gasid)
-			if(current_gas.isOxidiser())
-				adjust_gas(current_gas.gas_id, -gases[gasid] * used_reactants_ratio * current_gas.fuel_multiplier, 0) //take the cost of oxidiser
+		for(var/gasid in (gases & gas_oxidisers))
+			adjust_gas(gasid, -gases[gasid] * used_reactants_ratio * gas_oxidisers[gasid], 0) //take the cost of oxidiser
 
 		//fuels
-		for(var/gasid in gases)
-			var/datum/gas/current_gas = get_gas_by_id(gasid)
-			if(current_gas.isFuel())
-				adjust_gas(current_gas.gas_id, -gases[gasid] * used_fuel_ratio * used_reactants_ratio * current_gas.fuel_multiplier, 0) //take the cost of fuel
+		for(var/gasid in (gases & gas_fuels))
+			adjust_gas(gasid, -gases[gasid] * used_fuel_ratio * used_reactants_ratio * gas_fuels[gasid], 0) //take the cost of fuel
 
 		adjust_gas(CARBON_DIOXIDE, max(2 * total_fuel, 0), 0)
 

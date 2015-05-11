@@ -45,8 +45,20 @@ proc/arctan(x)
 /proc/Default(a, b)
 	return a ? a : b
 
-/proc/Floor(x)
-	return round(x)
+/proc/Floor(x = 0, y = 0)
+	if(x == 0)
+		return 0
+	if(y == 0)
+		return round(x)
+
+	if(x < y)
+		return 0
+
+	var/diff = round(x, y) //finds x to the nearest value of y
+	if(diff > x)
+		return x - (y - (diff - x)) //diff minus x is the inverse of what we want to remove, so we subtract from y - the base unit - and subtract the result
+	else
+		return x //this is good enough
 
 // Greatest Common Divisor - Euclid's algorithm
 /proc/Gcd(a, b)
