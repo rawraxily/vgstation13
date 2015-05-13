@@ -95,8 +95,18 @@ What are the archived variables for?
 	//Inputs: The values of the gases to adjust done as a list(id = moles)
 	//Outputs: null
 
+	var/total_moles_to_trans = 0
+
 	for(var/a_gas in adjusts)
-		adjust_gas(a_gas, adjusts[a_gas], 0)
+		var/transferred = max(gases[a_gas] + adjusts[a_gas], 0)
+		gases[a_gas] = transferred
+		total_moles_to_trans += transferred
+
+
+	total_moles += total_moles_to_trans
+	pressure += (total_moles_to_trans * R_IDEAL_GAS_EQUATION * temperature) / volume
+	heat_capacity = heat_capacity_calc()
+
 	return
 
 //Takes a gas string, and the amount of moles to adjust by.
@@ -764,8 +774,7 @@ What are the archived variables for?
 	if(!right_side)
 		return 0
 
-	for(var/gasid in right_side.gases)
-		adjust_gas(gasid, right_side.gases[gasid], 0)
+	adjust(right_side.gases)
 
 	return 1
 
@@ -775,15 +784,23 @@ What are the archived variables for?
 	//Inputs: Gas mix to remove
 	//Outputs: 1
 
+	var/reverse = list()
+
 	for(var/gasid in right_side.gases)
-		adjust_gas(gasid, -right_side.gases[gasid], 0)
+		reverse += list("[gasid]" = right_side.gases[gasid]) * -1
+
+	adjust(reverse)
 
 	return 1
 
 /datum/gas_mixture/proc/multiply(factor)
 
+	var/multiplied = list()
+
 	for(var/gasid in gases)
-		adjust_gas(gasid, (factor - 1) * gases[gasid], 0)
+		multiplied += list("[gasid]" = (factor - 1) * gases[gasid])
+
+	adjust(multiplied)
 
 	return 1
 
