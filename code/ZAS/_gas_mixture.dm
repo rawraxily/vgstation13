@@ -89,7 +89,7 @@ What are the archived variables for?
 //FOR THE LOVE OF GOD PLEASE USE THIS PROC
 //Call it with negative numbers to remove gases.
 
-/datum/gas_mixture/proc/adjust(list/datum/gas/adjusts = list())
+/datum/gas_mixture/proc/adjust(list/datum/gas/adjusts = list(), use_group_multiplier = 1)
 	//Purpose: Adjusting the gases within a airmix
 	//Called by: Nothing, yet!
 	//Inputs: The values of the gases to adjust done as a list(id = moles)
@@ -98,9 +98,9 @@ What are the archived variables for?
 	var/total_moles_to_trans = 0
 
 	for(var/a_gas in adjusts)
-		var/transferred = max(gases[a_gas] + adjusts[a_gas], 0)
+		var/transferred = max(gases[a_gas] + adjusts[a_gas]/(use_group_multiplier && group_multiplier ? group_multiplier : 1), 0)
+		total_moles_to_trans += transferred - gases[a_gas] //how much we actually changed
 		gases[a_gas] = transferred
-		total_moles_to_trans += transferred
 
 
 	total_moles += total_moles_to_trans
@@ -774,7 +774,7 @@ What are the archived variables for?
 	if(!right_side)
 		return 0
 
-	adjust(right_side.gases)
+	adjust(right_side.gases, 0)
 
 	return 1
 
@@ -789,7 +789,7 @@ What are the archived variables for?
 	for(var/gasid in right_side.gases)
 		reverse += list("[gasid]" = right_side.gases[gasid]) * -1
 
-	adjust(reverse)
+	adjust(reverse, 0)
 
 	return 1
 
@@ -800,7 +800,7 @@ What are the archived variables for?
 	for(var/gasid in gases)
 		multiplied += list("[gasid]" = (factor - 1) * gases[gasid])
 
-	adjust(multiplied)
+	adjust(multiplied, 0)
 
 	return 1
 
